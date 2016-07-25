@@ -96,4 +96,4 @@ If the text in NODE splited, It will be concated"
 
 
 
-(provide 'bs)
+(provide 'beautifulSoup)
