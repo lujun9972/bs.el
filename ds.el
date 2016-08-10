@@ -1,8 +1,8 @@
 (require 'cl-lib)
 
-(defun bs-get-node-from-html (url)
+(defun ds-get-node-from-html (url)
   "从http `url'中获取经过`libxml-parse-html-region'解析的内容"
-  (let ((url-buffer (url-retrieve-synchronously url))
+  (let ((url-buffer (url-retrieve-synchronously url 'silent))
         url-content)
     (with-current-buffer url-buffer
       (search-forward-regexp "^$")
@@ -10,52 +10,52 @@
     (kill-buffer url-buffer)
     url-content))
 
-(defun bs-get-tag (node)
+(defun ds-get-tag (node)
   "Return current tag name from NODE"
   (symbol-name (car node)))
 
-(defun bs-get-attrs (node)
+(defun ds-get-attrs (node)
   "Return attrs as an alist from NODE"
   (second node))
 
-(defun bs-get-attr (node attr)
+(defun ds-get-attr (node attr)
   "Return attr from NODE"
   (assoc-string attr (second node)))
 
-(defun bs-get-subnodes (node &optional subnode-tag-name)
+(defun ds-get-subnodes (node &optional subnode-tag-name)
   "Return subnodes as list from NODE"
   (let ((subnodes (cl-remove-if 'stringp (cddr node))))
     (if subnode-tag-name
         (remove-if-not (lambda (node)
-                         (string= subnode-tag-name (bs-get-tag node)))
+                         (string= subnode-tag-name (ds-get-tag node)))
                        subnodes)
       subnodes)))
 
-(defun bs-get-subnode (node &rest tags)
+(defun ds-get-subnode (node &rest tags)
   "Return subnodes from NODE"
   (if tags
-      (apply 'bs-get-subnode (assoc-string (car tags)
-                                    (bs-get-subnodes node))
+      (apply 'ds-get-subnode (assoc-string (car tags)
+                                    (ds-get-subnodes node))
                       (cdr tags))
     node))
 
-(cl-defun bs-get-texts (node)
+(cl-defun ds-get-texts (node)
   "Return text content from NODE
 
 If the text in NODE splited, It will a list contains all part of text"
   (cl-remove-if-not #'stringp (cddr node)))
 
-(cl-defun bs-get-text (node)
+(cl-defun ds-get-text (node)
   "Return text content from NODE
 
 If the text in NODE splited, It will be concated"
-  (string-join (bs-get-texts node) ""))
+  (string-join (ds-get-texts node) ""))
 
-(defun bs--node-match-p (node tag attr-rules text-rule)
+(defun ds--node-match-p (node tag attr-rules text-rule)
   "If NODE matched,return node"
-  (let ((node-tag (bs-get-tag node))
-        (node-attrs (bs-get-attrs node))
-        (node-text (bs-get-text node)))
+  (let ((node-tag (ds-get-tag node))
+        (node-attrs (ds-get-attrs node))
+        (node-text (ds-get-text node)))
     (and (or (null tag)
              (string= node-tag tag))
          (or (null text-rule)
@@ -70,30 +70,30 @@ If the text in NODE splited, It will be concated"
                       attr-rules))
          node)))
 
-(cl-defun bs-findAll (node tag &optional attr-rules (recursive-p t) text-rule)
+(cl-defun ds-findAll (node tag &optional attr-rules (recursive-p t) text-rule)
   "find out all the matched subnodes like findAll method in the python package bs"
-  (let ((node-subnodes (bs-get-subnodes node))
+  (let ((node-subnodes (ds-get-subnodes node))
         (node-match-p (lambda (node)
-                        (bs--node-match-p node tag attr-rules text-rule))))
+                        (ds--node-match-p node tag attr-rules text-rule))))
     (if recursive-p
         (append (cl-remove-if-not node-match-p node-subnodes)
                 (cl-mapcan (lambda (node)
-                          (bs-findAll node tag attr-rules recursive-p text-rule))
+                          (ds-findAll node tag attr-rules recursive-p text-rule))
                         node-subnodes))
       (cl-remove-if-not node-match-p node-subnodes))))
 
-(cl-defun bs-find (node tag &optional attr-rules (recursive-p t) text-rule)
+(cl-defun ds-find (node tag &optional attr-rules (recursive-p t) text-rule)
   "find out the first matched subnodes like find method in the python package bs"
-  (let ((node-subnodes (bs-get-subnodes node))
+  (let ((node-subnodes (ds-get-subnodes node))
         (node-match-p (lambda (node)
-                        (bs--node-match-p node tag attr-rules text-rule))))
+                        (ds--node-match-p node tag attr-rules text-rule))))
     (if recursive-p
         (or (cl-some node-match-p node-subnodes)
             (cl-some (lambda (node)
-                       (bs-find node tag attr-rules recursive-p text-rule))
+                       (ds-find node tag attr-rules recursive-p text-rule))
                      node-subnodes))
       (cl-some node-match-p node-subnodes))))
 
 
 
-(provide 'beautifulSoup)
+(provide 'ds)
