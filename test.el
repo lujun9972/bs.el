@@ -1,4 +1,4 @@
-(require 'bs)
+(require 'document-selector)
 (require 'ert)
 
 (defvar bs-test-text "<html><head></head><body width=101><div class=thing>Foo<div>Yes")
