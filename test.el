@@ -1,71 +1,71 @@
 (require 'document-selector)
 (require 'ert)
 
-(defvar bs-test-text "<html><head></head><body width=101><div class=thing>Foo<div>Yes")
-(defvar bs-test-node (with-temp-buffer
-                       (insert bs-test-text)
+(defvar ds-test-text "<html><head></head><body width=101><div class=thing>Foo<div>Yes")
+(defvar ds-test-node (with-temp-buffer
+                       (insert ds-test-text)
                        (libxml-parse-html-region (point-min) (point-max))))
 
-(ert-deftest bs-test-findAll ()
+(ert-deftest ds-test-findAll ()
   ""
-  (should (equal (bs-findAll bs-test-node
+  (should (equal (ds-findAll ds-test-node
                              "div")
                  '((div ((class . "thing")) "Foo" (div nil "Yes")) (div nil "Yes"))))
-  (should (null (bs-findAll bs-test-node
+  (should (null (ds-findAll ds-test-node
                             "table")))
-  (should (equal (bs-findAll bs-test-node
+  (should (equal (ds-findAll ds-test-node
                              "div" '((class . "^th")))
                  '((div ((class . "thing")) "Foo" (div nil "Yes")))))
-  (should (null (bs-findAll bs-test-node
+  (should (null (ds-findAll ds-test-node
                             "div" '((class . "^th$")))))
-  (should (equal (bs-findAll bs-test-node
+  (should (equal (ds-findAll ds-test-node
                              "body" '((width . "101")) nil)
                  '((body ((width . "101")) (div ((class . "thing")) "Foo" (div nil "Yes"))))))
-  (should (null (bs-findAll bs-test-node
+  (should (null (ds-findAll ds-test-node
                             "div" '((class . "^th")) nil)))
-  (should (equal (bs-findAll bs-test-node
+  (should (equal (ds-findAll ds-test-node
                              "div" nil t "Yes")
                  '((div nil "Yes"))))
-  (should (null (bs-findAll bs-test-node
+  (should (null (ds-findAll ds-test-node
                             "div" nil t "None"))))
-(ert-deftest bs-test-find ()
+(ert-deftest ds-test-find ()
   ""
-  (should (equal (bs-find bs-test-node
+  (should (equal (ds-find ds-test-node
                              "div")
                  '(div ((class . "thing")) "Foo" (div nil "Yes"))))
-  (should (null (bs-find bs-test-node
+  (should (null (ds-find ds-test-node
                             "table")))
-  (should (equal (bs-find bs-test-node
+  (should (equal (ds-find ds-test-node
                              "div" '((class . "^th")))
                  '(div ((class . "thing")) "Foo" (div nil "Yes"))))
-  (should (null (bs-find bs-test-node
+  (should (null (ds-find ds-test-node
                             "div" '((class . "^th$")))))
-  (should (equal (bs-find bs-test-node
+  (should (equal (ds-find ds-test-node
                              "body" '((width . "101")) nil)
                  '(body ((width . "101")) (div ((class . "thing")) "Foo" (div nil "Yes")))))
-  (should (null (bs-find bs-test-node
+  (should (null (ds-find ds-test-node
                             "div" '((class . "^th")) nil)))
-  (should (equal (bs-find bs-test-node
+  (should (equal (ds-find ds-test-node
                              "div" nil t "Yes")
                  '(div nil "Yes")))
-  (should (null (bs-find bs-test-node
+  (should (null (ds-find ds-test-node
                          "div" nil t "None"))))
 
-(ert-deftest bs-test-get-subnode ()
+(ert-deftest ds-test-get-subnode ()
   ""
-  (should (equal (bs-get-subnode bs-test-node
+  (should (equal (ds-get-subnode ds-test-node
                              "head")
                  '(head nil)))
-  (should (equal (bs-get-subnode bs-test-node
+  (should (equal (ds-get-subnode ds-test-node
                                  "body")
                  '(body ((width . "101")) (div ((class . "thing")) "Foo" (div nil "Yes")))))
-  (should (null (bs-get-subnode bs-test-node
+  (should (null (ds-get-subnode ds-test-node
                             "table")))
-  (should (equal (bs-get-subnode bs-test-node
+  (should (equal (ds-get-subnode ds-test-node
                                  "body" "div")
                  '(div ((class . "thing")) "Foo" (div nil "Yes"))))
-  (should (null (bs-get-subnode bs-test-node
+  (should (null (ds-get-subnode ds-test-node
                             "head" "div")))
-  (should (equal (bs-get-subnode bs-test-node
+  (should (equal (ds-get-subnode ds-test-node
                              "body" "div" "div")
                  '(div nil "Yes"))))
