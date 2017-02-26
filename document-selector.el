@@ -39,17 +39,17 @@
                       (cdr tags))
     node))
 
-(cl-defun ds-get-texts (node)
-  "Return text content from NODE
 
-If the text in NODE splited, It will a list contains all part of text"
-  (cl-remove-if-not #'stringp (cddr node)))
 
 (cl-defun ds-get-text (node)
   "Return text content from NODE
 
 If the text in NODE splited, It will be concated"
-  (string-join (ds-get-texts node) ""))
+  (let (text)
+    (dolist (ele (cddr node) (string-join (reverse text) ""))
+      (if (stringp ele)
+          (push ele texts)
+        (push (ds-get-text ele) texts)))))
 
 (defun ds--node-match-p (node tag attr-rules text-rule)
   "If NODE matched,return node"
